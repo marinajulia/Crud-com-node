@@ -4,8 +4,9 @@ import knex from '../Database/Connection';
 export default {
     async create(req: Request, res: Response) {
         const { nome, cpf } = req.body;
-        const id = 3;
-        const data = { id, nome, cpf };
+        const data = { cpf, nome }
+        await knex('tab_cadastro').insert(data);
+
         return res.status(201).json({ data: data });
     },
 
@@ -14,12 +15,30 @@ export default {
 
         return res.status(200).json({ data: result });
     },
+    async find(req: Request, res: Response) {
+        const { id } = req.params;
+        const user = await knex('tab_cadastro').where({ id });
 
+        return res.status(200).json(user);
+    },
     async update(req: Request, res: Response) {
+        const { id } = req.params;
         const { nome, cpf } = req.body;
-        const dataAlteracao = '30/05/2021 16:00';
-        const cadastro = { nome, cpf, dataAlteracao };
-        cadastro.nome = "jose da silva";
+
+        const data = { cpf, nome };
+
+        await knex('tab_cadastro').update(data).where({ id });
+
+        const cadastro = await knex('tab_cadastro').where({ id });
         return res.status(200).json({ data: cadastro });
+    },
+
+    async delete(req: Request, res: Response) {
+        const { id } = req.params;
+
+        await knex('tab_cadastro').del().where({ id });
+
+        const cadastro = await knex('tab_cadastro').where({ id });
+        return res.status(200).json({ message: 'Registro excluído com sucesso' });
     },
 }
